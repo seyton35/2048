@@ -1,4 +1,4 @@
-import { View, StyleSheet, Dimensions } from 'react-native'
+import { View, StyleSheet, Dimensions, Animated } from 'react-native'
 
 interface Props {
     children: React.ReactNode
@@ -6,9 +6,19 @@ interface Props {
 
 export default function Field({ children }: Props) {
     const Width = Dimensions.get('window').width;
+
+    function getSize() {
+        return {
+            width: Width - 50,
+            height: Width - 50
+        }
+    }
+
     return (
-        <View style={[styles.field, { width: Width - 50, height: Width - 50 }]}>
-            {children}
+        <View style={[styles.field, getSize()]}>
+            <Animated.View style={styles.joystick}>
+                {children}
+            </Animated.View>
         </View>
     )
 }
@@ -16,8 +26,12 @@ export default function Field({ children }: Props) {
 const styles = StyleSheet.create({
     field: {
         backgroundColor: '#ddd',
-        padding:1,
-        display:'flex',
-        flexDirection:'row'
+    },
+    joystick: {
+        position: 'absolute',
+        zIndex: 100,
+
+        flex: 1,
+        backgroundColor: '#fff',
     }
 })

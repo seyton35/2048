@@ -1,14 +1,56 @@
-import { View, StyleSheet, Dimensions } from 'react-native'
+import { View, StyleSheet, Dimensions, Animated } from 'react-native'
 import Txt from '../custom/Txt'
+import { useEffect, useRef } from 'react';
 
 interface Props {
-    // children: React.ReactNode,
-    count: number
+    count: number,
+    x: number,
+    y: number,
+    newX: number,
+    newY: number
 }
 
-export default function Cell({ count }: Props) {
+export default function Cell({ count, x, y, newX, newY }: Props) {
     const Width = Dimensions.get('window').width;
+    const posX = useRef(new Animated.Value(x)).current
+    const posY = useRef(new Animated.Value(y)).current
 
+    useEffect(() => {
+        moveX(newX)
+    }, [newX])
+    useEffect(() => {
+        moveY(newY)
+    }, [newY])
+
+
+    function moveX(newX: number) {
+        Animated.spring(
+            posX,
+            {
+                toValue: newX,
+                useNativeDriver: true
+            }
+        ).start()
+    }
+    function moveY(newY: number) {
+        Animated.spring(
+            posY,
+            {
+                toValue: newY,
+                useNativeDriver: true
+            }
+        ).start()
+    }
+
+    function moveTo() {
+
+        return {
+            transform: [
+                { translateX: posX },
+                { translateY: posY }
+            ]
+        }
+    }
 
     function getStyle() {
         const style = {
@@ -20,21 +62,22 @@ export default function Cell({ count }: Props) {
     }
 
     return (
-        <View style={[styles.cell, getStyle()]}>
+        <Animated.View style={[styles.cell, getStyle(), moveTo()]}>
             <Txt style={styles.cellTxt}>{count}</Txt>
-        </View>
+        </Animated.View>
     )
 }
 
 const styles = StyleSheet.create({
     cell: {
         backgroundColor: '#80ff80',
-        width:10,
-        height:10,
-        margin:1,
+        width: 10,
+        height: 10,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        position: 'absolute',
     },
     cellTxt: {
+        fontWeight: '900'
     }
 })
