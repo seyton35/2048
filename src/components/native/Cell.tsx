@@ -1,49 +1,43 @@
-import { View, StyleSheet, Dimensions, Animated } from 'react-native'
+import { StyleSheet, Animated, View } from 'react-native'
 import Txt from '../custom/Txt'
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Props {
+    size: number,
     count: number,
     x: number,
     y: number,
-    newX: number,
-    newY: number
 }
 
-export default function Cell({ count, x, y, newX, newY }: Props) {
-    const Width = Dimensions.get('window').width;
-    const posX = useRef(new Animated.Value(x)).current
-    const posY = useRef(new Animated.Value(y)).current
+export default function Cell({ size, count, x, y, }: Props) {
+    const posX = useRef(new Animated.Value(x * size)).current
+    const posY = useRef(new Animated.Value(y * size)).current
+
+    const [counter, setcounter] = useState(count)
 
     useEffect(() => {
-        moveX(newX)
-    }, [newX])
+        move(posX, x * size)
+    }, [x])
     useEffect(() => {
-        moveY(newY)
-    }, [newY])
+        move(posY, y * size)
+    }, [y])
 
 
-    function moveX(newX: number) {
+    function move(direction: Animated.Value, newPos: number) {
         Animated.spring(
-            posX,
+            direction,
             {
-                toValue: newX,
+                toValue: newPos,
                 useNativeDriver: true
             }
-        ).start()
-    }
-    function moveY(newY: number) {
-        Animated.spring(
-            posY,
-            {
-                toValue: newY,
-                useNativeDriver: true
+        ).start(({ finished }) => {
+            if (finished) {
+                // doubleCounter()
             }
-        ).start()
+        })
     }
 
     function moveTo() {
-
         return {
             transform: [
                 { translateX: posX },
@@ -52,30 +46,41 @@ export default function Cell({ count, x, y, newX, newY }: Props) {
         }
     }
 
-    function getStyle() {
+    function getCellStyle() {
         const style = {
-            width: (Width - 62) / 5,
-            height: (Width - 62) / 5,
-
+            width: size,
+            height: size,
+        }
+        return style
+    }
+    function getCellBackgroundStyle() {
+        const style = {
+            width: size - 4,
+            height: size - 4,
         }
         return style
     }
 
     return (
-        <Animated.View style={[styles.cell, getStyle(), moveTo()]}>
-            <Txt style={styles.cellTxt}>{count}</Txt>
+        <Animated.View style={[styles.cell, getCellStyle(), moveTo()]}>
+            <View style={[styles.cellBackground, getCellBackgroundStyle()]}>
+
+                <Txt style={styles.cellTxt}>{counter}</Txt>
+            </View>
         </Animated.View>
     )
 }
 
 const styles = StyleSheet.create({
     cell: {
-        backgroundColor: '#80ff80',
-        width: 10,
-        height: 10,
         alignItems: 'center',
         justifyContent: 'center',
-        position: 'absolute',
+        position: 'absolute'
+    },
+    cellBackground: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#80ff80',
     },
     cellTxt: {
         fontWeight: '900'

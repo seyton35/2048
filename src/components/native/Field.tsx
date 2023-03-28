@@ -1,21 +1,22 @@
-import { View, StyleSheet, Dimensions, Animated } from 'react-native'
+import { View, StyleSheet, Animated } from 'react-native'
 
 interface Props {
-    children: React.ReactNode
+    children: React.ReactNode,
+    size: number,
+    style: {}
 }
 
-export default function Field({ children }: Props) {
-    const Width = Dimensions.get('window').width;
+export default function Field({ children, size, style }: Props) {
 
     function getSize() {
         return {
-            width: Width - 50,
-            height: Width - 50
+            width: size,
+            height: size
         }
     }
 
     return (
-        <View style={[styles.field, getSize()]}>
+        <View style={[styles.field, getSize(), style]}>
             <Animated.View style={styles.joystick}>
                 {children}
             </Animated.View>
