@@ -3,34 +3,31 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import Txt from '../custom/Txt';
 
 interface Props {
-    left: () => void,
-    right: () => void,
-    up: () => void,
-    down: () => void,
-    style: {}
+    swipe: (move:string) => void,
+    style: object
 }
 
-export default function ButtonJoystick({ style, left, right, up, down }: Props) {
+export default function ButtonJoystick({ style, swipe }: Props) {
     return (
         <View style={[styles.joystick, style]}>
 
             <TouchableOpacity style={[styles.btn, styles.btnUp]}
-                onPress={up}>
+                onPress={()=>swipe('up')}>
                 <Icon style={[styles.btnIcon, styles.btnIconUp]} name="arrowleft" />
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.btn, styles.btnRight]}
-                onPress={right}>
+                onPress={()=>swipe('right')}>
                 <Icon style={[styles.btnIcon, styles.btnIconRight]} name="arrowleft" />
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.btn, styles.btnDown]}
-                onPress={down}>
+                onPress={()=>swipe('down')}>
                 <Icon style={[styles.btnIcon, styles.btnIconDown]} name="arrowleft" />
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.btn, styles.btnLeft]}
-                onPress={left}>
+                onPress={()=>swipe('left')}>
                 <Icon style={[styles.btnIcon, styles.btnIconLeft]} name="arrowleft" />
             </TouchableOpacity>
 

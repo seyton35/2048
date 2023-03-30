@@ -1,12 +1,17 @@
+import {useEffect} from 'react'
 import { StyleSheet, View, } from "react-native";
-import { useNavigation, } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { initialization } from "../store/slices/stateReducer";
 
 import Container from "../components/reusable/Container";
-import Txt from "../components/custom/Txt";
 import NavButton from "../components/reusable/NavButton";
 
 export default function Home() {
-    const navigation = useNavigation()
+    const dispatch = useDispatch()
+    useEffect(() => {
+    //   dispatch(initialization()) TODO: add RootState midleware
+    }, [])
+    
 
     return (
         <Container>

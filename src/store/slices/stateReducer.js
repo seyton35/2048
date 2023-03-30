@@ -13,16 +13,37 @@ export const thunk = createAsyncThunk(
     }
 )
 
+export const initialization = createAsyncThunk(
+    'state/initialization',
+    async (_, { dispatch }) => {
+        try {
+            const bestScore = await getData('bestScore')
+            if (bestScore !== null) {
+                dispatch(setBestScore(bestScore))
+            }
+        } catch (e) {
+            console.log(e.message);
+        }
+    }
+)
+
 const stateSlice = createSlice({
     name: 'state',
     initialState: {
         version: '1.0.0',
         toastAndroidMessage: null,
+        bestScore: 0
     },
     reducers: {
+        setBestScore: (state, action) => {
+            state.bestScore = action.payload
+        },
         setToastAndroidMessage: (state, action) => {
             state.toastAndroidMessage = action.payload
         },
+        storeBestScore: (state, action) => {
+            storeData('bestScore', state.bestScore)
+        }
     },
     extraReducers: builder => {
         builder
@@ -39,6 +60,7 @@ const stateSlice = createSlice({
 })
 
 export const {
+    setBestScore,
     setToastAndroidMessage,
 } = stateSlice.actions
 
