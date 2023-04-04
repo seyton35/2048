@@ -10,14 +10,11 @@ import Cell from '../components/native/Cell'
 import ButtonJoystick from '../components/native/ButtonJoystick'
 import Score from '../components/native/Score'
 
-const EMPTY_CELL = { c: 0, x: 0, y: 0, shouldDouble: false, shouldClear: false }
-const CLEAR_CELL = { c: -1, x: -1, y: -1, shouldDouble: false, shouldClear: false }
+const EMPTY_CELL = { c: 0, x: 0, nx: 0, y: 0, ny: 0, shouldDouble: false, shouldClear: false }
+const CLEAR_CELL = { ...EMPTY_CELL, c: -1, x: -1, y: -1, nx: -1, ny: -1 }
 
 export default function Game() {
     const FIELD_SIZE = Dimensions.get('window').width / 10 * 9
-
-    const x = useRef(0)
-
     const [fieldGrid, setFieldGrid] = useState(4)
     const cellWeight = useRef(2)
 
@@ -25,6 +22,8 @@ export default function Game() {
         c: number,
         x: number,
         y: number,
+        nx: number,
+        ny: number,
         shouldDouble: boolean,
         shouldClear: boolean,
     }
@@ -67,16 +66,16 @@ export default function Game() {
         const { x, y } = randomCell
         // cells[y][x] = { c: getCellWeight(), x, y, }
 
-        cells[0][0] = { ...EMPTY_CELL, c: 4, x: 0, y: 0 }
-        cells[0][1] = { ...EMPTY_CELL, c: 4, x: 1, y: 0 }
-        cells[0][2] = { ...EMPTY_CELL, c: 4, x: 2, y: 0 }
-        cells[0][3] = { ...EMPTY_CELL, c: 4, x: 3, y: 0 }
-        cells[0][4] = { ...EMPTY_CELL, c: 4, x: 4, y: 0 }
-        cells[0][5] = { ...EMPTY_CELL, c: 2, x: 5, y: 0 }
-        cells[0][6] = { ...EMPTY_CELL, c: 2, x: 6, y: 0 }
-        cells[0][7] = { ...EMPTY_CELL, c: 2, x: 7, y: 0 }
-        cells[0][8] = { ...EMPTY_CELL, c: 2, x: 8, y: 0 }
-        cells[0][9] = { ...EMPTY_CELL, c: 2, x: 9, y: 0 }
+        cells[0][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 0, nx: 0, ny: 0 }
+        cells[1][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 1, nx: 0, ny: 1 }
+        cells[2][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 2, nx: 0, ny: 2 }
+        cells[3][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 3, nx: 0, ny: 3 }
+        cells[4][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 4, nx: 0, ny: 4 }
+        cells[5][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 5, nx: 0, ny: 5 }
+        cells[6][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 6, nx: 0, ny: 6 }
+        cells[7][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 7, nx: 0, ny: 7 }
+        cells[8][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 8, nx: 0, ny: 8 }
+        cells[9][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 9, nx: 0, ny: 9 }
         setCells(cells.map(el => el))
     }
 
@@ -118,14 +117,15 @@ export default function Game() {
                         const cell = row[x];
                         if (cell.c == prevCell.c) {
                             posSubstract++
-                            cell.x = x - posSubstract
+                            cell.x = cell.nx
+                            cell.nx = x - posSubstract
                             cell.shouldClear = true
                             prevCell.shouldDouble = true
                             prevCell = CLEAR_CELL
                         } else if (cell.c == 0) {
                             posSubstract++
                         } else if (cell.c != prevCell.c) {
-                            cell.x = x - posSubstract
+                            cell.nx = x - posSubstract
                             prevCell = cell
                         }
                     }
@@ -134,14 +134,15 @@ export default function Game() {
                         const cell = row[x];
                         if (cell.c == prevCell.c) {
                             posSubstract++
-                            cell.x = x + posSubstract
+                            cell.x = cell.nx
+                            cell.nx = x + posSubstract
                             cell.shouldClear = true
                             prevCell.shouldDouble = true
                             prevCell = CLEAR_CELL
                         } else if (cell.c == 0) {
                             posSubstract++
                         } else {
-                            cell.x = x + posSubstract
+                            cell.nx = x + posSubstract
                             prevCell = cell
                         }
                     }
@@ -151,41 +152,40 @@ export default function Game() {
             }))
             setTimeout(() => {
                 foldHorizontal()
-            }, 100);
+            }, 500);
         }
 
         function foldHorizontal() {
             setCells(cells.map(row => {
-                const newRow = []
-                const newEmptyRow = []
                 for (let x = 0; x < row.length; x++) {
                     const cell = row[x];
                     if (cell.shouldDouble) {
                         cell.c *= 2
+                        cell.x = cell.nx
                         cell.shouldDouble = false
-                    }
-                    else if (cell.shouldClear) {
+                    } else if (cell.shouldClear) {
                         cell.c = 0
                         cell.shouldClear = false
+                    } else if (cell.c > 0) {
+                        cell.x = cell.nx
                     }
                 }
                 return row
             }))
-            orderCells()
+            setCells(orderCells())
         }
 
         function orderCells() {
-            for (let x = 0; x < cells[0].length; x++) {
-                const cell = cells[0][x];
-                console.log('cell', cell)
-            }
+            // for (let x = 0; x < cells[0].length; x++) {
+            //     const cell = cells[0][x];
+            //     console.log('cell', cell)
+            // }
             const nCells: Cell[][] = []
             for (let y = 0; y < fieldGrid; y++) {
                 nCells.push([])
                 for (let x = 0; x < fieldGrid; x++) {
-                    nCells[y].push({ ...EMPTY_CELL, x, y })
+                    nCells[y].push({ ...EMPTY_CELL, x, y, nx: x, ny: y })
                 }
-
             }
             for (let y = 0; y < cells.length; y++) {
                 for (let x = 0; x < cells[y].length; x++) {
@@ -269,12 +269,13 @@ export default function Game() {
         const cellDom = []
         for (let i = 0; i < cells.length; i++) {
             for (let j = 0; j < cells[i].length; j++) {
-                const { c, x, y } = cells[i][j];
+                const { c, x, y, nx, ny } = cells[i][j];
                 if (c != 0) {
                     cellDom.push(<Cell key={i * 10 + j}
                         size={FIELD_SIZE / fieldGrid}
                         count={c}
                         x={x} y={y}
+                        nx={nx} ny={ny}
                     />)
                 }
             }
@@ -308,8 +309,8 @@ export default function Game() {
                     <Button title='clo 0' onPress={() => {
                         console.log('row 0')
                         cells[0].map(cell => {
-                            const { c, x, y } = cell
-                            console.log('c:', c, ' y:', y, ' x:', x)
+                            const { c, x, nx } = cell
+                            console.log('c:', c, ' x:', x, ' nx:', nx)
                         })
                     }} />
                 </View>

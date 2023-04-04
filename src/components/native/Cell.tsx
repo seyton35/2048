@@ -7,6 +7,8 @@ interface Props {
     count: number,
     x: number,
     y: number,
+    nx: number,
+    ny: number,
 }
 
 const WEIGHT_COLORS: { [key: number]: string } = {
@@ -23,7 +25,7 @@ const WEIGHT_COLORS: { [key: number]: string } = {
     2048: '#ebc12d',
 }
 
-export default function Cell({ size, count, x, y }: Props) {
+export default function Cell({ size, count, x, y, nx, ny }: Props) {
     const posX = useRef(new Animated.Value(x * size)).current
     const posY = useRef(new Animated.Value(y * size)).current
     const scale = useRef(new Animated.Value(1)).current
@@ -34,16 +36,17 @@ export default function Cell({ size, count, x, y }: Props) {
         bulgingCell()
         setCounter(count)
     }, [count])
-
+    
     useEffect(() => {
-        riseCell()
+        bulgingCell()
+        // riseCell()
     }, [])
     useEffect(() => {
-        move(posX, x)
-    }, [x])
+        move(posX, x, nx)
+    }, [nx])
     useEffect(() => {
-        move(posY, y)
-    }, [y])
+        move(posY, y, ny)
+    }, [ny])
 
 
     function bulgingCell() {
@@ -84,14 +87,23 @@ export default function Cell({ size, count, x, y }: Props) {
         ]).start()
     }
 
-    function move(direction: Animated.Value, newPos: number) {
-        Animated.timing(
-            direction,
-            {
-                toValue: newPos * size,
-                useNativeDriver: true,
-                duration: 500
-            }).start()
+    function move(direction: Animated.Value, pos: number, newPos: number) {
+        Animated.sequence([
+            Animated.timing(
+                direction,
+                {
+                    toValue: pos * size,
+                    useNativeDriver: true,
+                    duration: 0
+                }),
+            Animated.timing(
+                direction,
+                {
+                    toValue: newPos * size,
+                    useNativeDriver: true,
+                    duration: 500
+                })
+        ]).start()
     }
 
     function animation() {
