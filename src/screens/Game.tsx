@@ -12,11 +12,10 @@ import Score from '../components/native/Score'
 
 const EMPTY_CELL = { c: 0, x: 0, nx: 0, y: 0, ny: 0, shouldDouble: false, shouldClear: false }
 const CLEAR_CELL = { ...EMPTY_CELL, c: -1, x: -1, y: -1, nx: -1, ny: -1 }
+const FIELD_SIZE = Dimensions.get('window').width / 20 * 19
 
 export default function Game() {
-    const FIELD_SIZE = Dimensions.get('window').width / 10 * 9
     const [fieldGrid, setFieldGrid] = useState(4)
-    const cellWeight = useRef(2)
 
     interface Cell {
         c: number,
@@ -29,7 +28,6 @@ export default function Game() {
     }
 
     const [cells, setCells] = useState<Cell[][]>([])
-    const refCells = useRef<Cell[][]>([])
     const [score, setScore] = useState(0)
     const { bestScore } = useSelector((s: any) => s.state)
 
@@ -64,18 +62,18 @@ export default function Game() {
 
         const randomCell = arr[Math.floor(Math.random() * arr.length)]
         const { x, y } = randomCell
-        // cells[y][x] = { c: getCellWeight(), x, y, }
+        cells[y][x] = { ...EMPTY_CELL, c: getCellWeight(), x, y, nx: x, ny: y }
 
-        cells[0][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 0, nx: 0, ny: 0 }
-        cells[1][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 1, nx: 0, ny: 1 }
-        cells[2][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 2, nx: 0, ny: 2 }
-        cells[3][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 3, nx: 0, ny: 3 }
-        cells[4][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 4, nx: 0, ny: 4 }
-        cells[5][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 5, nx: 0, ny: 5 }
-        cells[6][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 6, nx: 0, ny: 6 }
-        cells[7][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 7, nx: 0, ny: 7 }
-        cells[8][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 8, nx: 0, ny: 8 }
-        cells[9][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 9, nx: 0, ny: 9 }
+        // cells[0][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 0, nx: 0, ny: 0 }
+        // cells[1][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 1, nx: 0, ny: 1 }
+        // cells[2][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 2, nx: 0, ny: 2 }
+        // cells[3][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 3, nx: 0, ny: 3 }
+        // cells[4][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 4, nx: 0, ny: 4 }
+        // cells[5][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 5, nx: 0, ny: 5 }
+        // cells[6][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 6, nx: 0, ny: 6 }
+        // cells[7][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 7, nx: 0, ny: 7 }
+        // cells[8][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 8, nx: 0, ny: 8 }
+        // cells[9][0] = { ...EMPTY_CELL, c: 2, x: 0, y: 9, nx: 0, ny: 9 }
         setCells(cells.map(el => el))
     }
 
@@ -86,27 +84,10 @@ export default function Game() {
             // 4, 8,
         ]
         return weight[Math.floor(Math.random() * weight.length)]
-        return cellWeight.current
     }
 
     function swipeTo(move: string) {
-
-        const arr = cells
         let swipeScore = 0
-
-        function foldVertical(i: number, j: number, prev: { c: number, pos: number }) {
-            const cur = arr[j][i];
-            if (prev.c === cur.c) {
-                swipeScore += arr[j][i].c * 2
-                arr[i][prev.pos] = { ...arr[i][prev.pos], c: cur.c * 2, x: i, y: j }
-                // arr[prev.pos][i].c *= 2
-                arr[j][i].c = 0
-                prev = { c: -1, pos: -1 }
-            } else if (cur.c != 0) {
-                prev = { c: cur.c, pos: j }
-            }
-            return prev
-        }
 
         function moveHorizontal() {
             setCells(cells.map((row, y) => {
@@ -152,7 +133,7 @@ export default function Game() {
             }))
             setTimeout(() => {
                 foldHorizontal()
-            }, 500);
+            }, 200);
         }
 
         function foldHorizontal() {
@@ -160,6 +141,7 @@ export default function Game() {
                 for (let x = 0; x < row.length; x++) {
                     const cell = row[x];
                     if (cell.shouldDouble) {
+                        swipeScore += cell.c * 2
                         cell.c *= 2
                         cell.x = cell.nx
                         cell.shouldDouble = false
@@ -172,14 +154,78 @@ export default function Game() {
                 }
                 return row
             }))
-            setCells(orderCells())
+            matchScore(swipeScore)
+            orderCells()
+        }
+
+        function moveVertical() {
+            for (let x = 0; x < cells.length; x++) {
+                let prevCell = CLEAR_CELL
+                let posSubstract = 0
+                if (move == 'up') {
+                    for (let y = 0; y < cells.length; y++) {
+                        const cell = cells[y][x];
+                        if (cell.c == prevCell.c) {
+                            posSubstract++
+                            cell.y = cell.ny
+                            cell.ny = y - posSubstract
+                            prevCell.shouldClear = true
+                            cell.shouldDouble = true
+                            prevCell = CLEAR_CELL
+                        } else if (cell.c == 0) {
+                            posSubstract++
+                        } else {
+                            cell.ny = y - posSubstract
+                            prevCell = cell
+                        }
+                    }
+                } else {
+                    for (let y = cells.length - 1; y >= 0; y--) {
+                        const cell = cells[y][x];
+                        if (cell.c == prevCell.c) {
+                            posSubstract++
+                            cell.y = cell.ny
+                            cell.ny = y + posSubstract
+                            prevCell.shouldClear = true
+                            cell.shouldDouble = true
+                            prevCell = CLEAR_CELL
+                        } else if (cell.c == 0) {
+                            posSubstract++
+                        } else {
+                            cell.ny = y + posSubstract
+                            prevCell = cell
+                        }
+                    }
+                }
+            }
+            setCells(cells.map(row => row))
+            setTimeout(() => {
+                foldVertical()
+            }, 200);
+        }
+
+        function foldVertical() {
+            for (let y = 0; y < cells.length; y++) {
+                for (let x = 0; x < cells.length; x++) {
+                    const cell = cells[y][x];
+                    if (cell.shouldDouble) {
+                        swipeScore += cell.c * 2
+                        cell.c *= 2
+                        cell.y = cell.ny
+                        cell.shouldDouble = false
+                    } else if (cell.shouldClear) {
+                        cell.c = 0
+                        cell.shouldClear = false
+                    } else if (cell.c > 0) {
+                        cell.y = cell.ny
+                    }
+                }
+            }
+            matchScore(swipeScore)
+            orderCells()
         }
 
         function orderCells() {
-            // for (let x = 0; x < cells[0].length; x++) {
-            //     const cell = cells[0][x];
-            //     console.log('cell', cell)
-            // }
             const nCells: Cell[][] = []
             for (let y = 0; y < fieldGrid; y++) {
                 nCells.push([])
@@ -195,46 +241,16 @@ export default function Game() {
                     }
                 }
             }
-            return nCells
+            setTimeout(() => {
+                setCells(nCells)
+            }, 200);
         }
 
-        function moveVertical() {
-            for (let x = 0; x < cells.length; x++) {
-                let prevCellVeight = -1
-                let posSubstract = 0
-                if (move == 'up') {
-                    for (let y = 0; y < cells.length; y++) {
-                        const cell = cells[y][x];
-                        if (cell.c == prevCellVeight) {
-                            posSubstract++
-                            cell.y = y - posSubstract
-                            prevCellVeight = -1
-                        } else if (cell.c == 0) {
-                            posSubstract++
-                        } else {
-                            cell.y = y - posSubstract
-                            prevCellVeight = cell.c
-                        }
-                    }
-                } else {
-                    for (let y = cells.length - 1; y >= 0; y--) {
-                        const cell = cells[y][x];
-                        if (cell.c == prevCellVeight) {
-                            posSubstract++
-                            cell.y = y + posSubstract
-                            prevCellVeight = -1
-                        } else if (cell.c == 0) {
-                            posSubstract++
-                        } else {
-                            cell.y = y + posSubstract
-                            prevCellVeight = cell.c
-                        }
-                    }
-
-                }
-
+        function matchScore(swipeScore: number) {
+            setScore(score + swipeScore)
+            if (bestScore < swipeScore + score) {
+                dispatch(setBestScore(swipeScore + score))
             }
-            setCells(cells.map(row => row))
         }
 
         switch (move) {
@@ -251,17 +267,6 @@ export default function Game() {
                 moveVertical()
                 break;
         }
-        setScore(score + swipeScore)
-        if (bestScore < score + swipeScore) {
-            dispatch(setBestScore(score + swipeScore))
-        }
-        // console.log('cells after:')
-        // arr.map(row => {
-        //     console.log(row)
-        // })
-        // logRow(move)// debug
-
-        setCells(cells.map(el => el))
         // setRandomCell();
     }
 
@@ -272,7 +277,8 @@ export default function Game() {
                 const { c, x, y, nx, ny } = cells[i][j];
                 if (c != 0) {
                     cellDom.push(<Cell key={i * 10 + j}
-                        size={FIELD_SIZE / fieldGrid}
+                        grid={fieldGrid}
+                        fieldSize={FIELD_SIZE}
                         count={c}
                         x={x} y={y}
                         nx={nx} ny={ny}
@@ -293,13 +299,15 @@ export default function Game() {
                         <Score style={styles.scoreBox} title='рекорд'>{bestScore}</Score>
                     </View>
                 </View>
-                <Field style={styles.field} size={FIELD_SIZE}>
+                <Field style={styles.field} size={FIELD_SIZE} grid={fieldGrid}>
                     {drawCells()}
                 </Field>
                 <View style={{ flexDirection: 'row' }}>
                     <Button title='3' onPress={() => { setFieldGrid(3) }} />
                     <Button title='4' onPress={() => { setFieldGrid(4) }} />
-                    <Button title='10' onPress={() => { setFieldGrid(10) }} />
+                    <Button title='5' onPress={() => { setFieldGrid(5) }} />
+                    <Button title='6' onPress={() => { setFieldGrid(6) }} />
+                    <Button title='8' onPress={() => { setFieldGrid(8) }} />
                     <Button title='clear' onPress={() => {
                         setCells([])
                         console.log("clear");
@@ -308,10 +316,10 @@ export default function Game() {
                     <Button title='random cell' onPress={setRandomCell} />
                     <Button title='clo 0' onPress={() => {
                         console.log('row 0')
-                        cells[0].map(cell => {
-                            const { c, x, nx } = cell
-                            console.log('c:', c, ' x:', x, ' nx:', nx)
-                        })
+                        for (let i = 0; i < cells.length; i++) {
+                            const { c, y, ny } = cells[i][0];
+                            console.log('c:', c, ' y:', y, ' ny:', ny)
+                        }
                     }} />
                 </View>
                 <View style={{ flexDirection: 'row' }}>
