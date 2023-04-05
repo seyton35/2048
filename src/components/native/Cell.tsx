@@ -1,9 +1,11 @@
 import { StyleSheet, Animated, View } from 'react-native'
 import Txt from '../custom/Txt'
 import { useEffect, useRef, useState } from 'react';
+import { FONT_SIZES, PADDING_SIZES, WEIGHT_COLORS } from '../../consts/field';
 
 interface Props {
-    size: number,
+    grid: number,
+    fieldSize: number,
     count: number,
     x: number,
     y: number,
@@ -11,36 +13,22 @@ interface Props {
     ny: number,
 }
 
-const WEIGHT_COLORS: { [key: number]: string } = {
-    2: '#f1e9e2',
-    4: '#ebdfc8',
-    8: '#f1b177',
-    16: '#f49663',
-    32: '#f57a5f',
-    64: '#f45f3a',
-    128: '#ebcf72',
-    256: '#ebcd61',
-    512: '#ebc84e',
-    1024: '#ebc63e',
-    2048: '#ebc12d',
-}
 
-export default function Cell({ size, count, x, y, nx, ny }: Props) {
-    const posX = useRef(new Animated.Value(x * size)).current
-    const posY = useRef(new Animated.Value(y * size)).current
+
+export default function Cell({ grid, fieldSize, count, x, y, nx, ny }: Props) {
+    const PADDING = PADDING_SIZES[grid]
+    const CELL_SIZE = (fieldSize - PADDING) / grid
+    const posX = useRef(new Animated.Value(x * CELL_SIZE)).current
+    const posY = useRef(new Animated.Value(y * CELL_SIZE)).current
     const scale = useRef(new Animated.Value(1)).current
 
     const [counter, setCounter] = useState(count)
 
     useEffect(() => {
-        bulgingCell()
+        // bulgingCell()
         setCounter(count)
     }, [count])
-    
-    useEffect(() => {
-        bulgingCell()
-        // riseCell()
-    }, [])
+
     useEffect(() => {
         move(posX, x, nx)
     }, [nx])
@@ -92,16 +80,16 @@ export default function Cell({ size, count, x, y, nx, ny }: Props) {
             Animated.timing(
                 direction,
                 {
-                    toValue: pos * size,
+                    toValue: pos * CELL_SIZE,
                     useNativeDriver: true,
                     duration: 0
                 }),
             Animated.timing(
                 direction,
                 {
-                    toValue: newPos * size,
+                    toValue: newPos * CELL_SIZE,
                     useNativeDriver: true,
-                    duration: 500
+                    duration: 200
                 })
         ]).start()
     }
@@ -118,16 +106,16 @@ export default function Cell({ size, count, x, y, nx, ny }: Props) {
 
     function getSize() {
         const style = {
-            width: size,
-            height: size,
+            width: CELL_SIZE,
+            height: CELL_SIZE,
         }
         return style
     }
     function getCellBackgroundStyle() {
         const color = WEIGHT_COLORS[count]
         const style = {
-            width: size - 4,
-            height: size - 4,
+            width: CELL_SIZE - PADDING,
+            height: CELL_SIZE - PADDING,
             backgroundColor: color
         }
         return style
@@ -136,8 +124,7 @@ export default function Cell({ size, count, x, y, nx, ny }: Props) {
     return (
         <Animated.View style={[styles.cell, getSize(), animation(),]}>
             <View style={[styles.cellBackground, getCellBackgroundStyle()]}>
-                <Txt style={styles.cellTxt}>{counter}</Txt>
-                {/* <Txt style={styles.cellTxt}>{`x:${x} y:${y}`}</Txt> */}
+                <Txt style={[styles.cellTxt, { fontSize: FONT_SIZES[grid] }]}>{counter}</Txt>
             </View>
         </Animated.View>
     )
@@ -152,8 +139,7 @@ const styles = StyleSheet.create({
     cellBackground: {
         alignItems: 'center',
         justifyContent: 'center',
-        // backgroundColor: '#80ff80',
-        borderRadius: 10
+        borderRadius: 5
     },
     cellTxt: {
         fontWeight: '900'

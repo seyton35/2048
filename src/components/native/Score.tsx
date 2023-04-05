@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
         padding: 10,
         backgroundColor: '#999',
         borderRadius: 5,
+        alignItems:'center'
     },
     scoreTxt: {
         fontSize: 12,
