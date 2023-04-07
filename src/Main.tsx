@@ -14,14 +14,13 @@ export default function Main() {
             <NavigationContainer>
                 <Stack.Navigator>
 
-                    <Stack.Screen
-                        name="home" component={Home}
-                    />
-                    <Stack.Screen
-                        name="game" component={Game}
-                        options={{ headerShown: false }}
-                    />
-
+                    <Stack.Group
+                        screenOptions={{ headerShown: false }}
+                    >
+                        <Stack.Screen name="home" component={Home} />
+                        <Stack.Screen name="game" component={Game} />
+                    </Stack.Group>
+                    
                 </Stack.Navigator>
             </NavigationContainer>
         </Provider>

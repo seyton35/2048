@@ -32,11 +32,15 @@ const stateSlice = createSlice({
     initialState: {
         version: '1.0.0',
         toastAndroidMessage: null,
-        bestScore: 0
+        bestScore: 0,
+        fieldGrid: 0
     },
     reducers: {
         setBestScore: (state, action) => {
             state.bestScore = action.payload
+        },
+        setFieldGrid: (state, action) => {
+            state.fieldGrid = action.payload
         },
         setToastAndroidMessage: (state, action) => {
             state.toastAndroidMessage = action.payload
@@ -61,6 +65,7 @@ const stateSlice = createSlice({
 
 export const {
     setBestScore,
+    setFieldGrid,
     setToastAndroidMessage,
 } = stateSlice.actions
 

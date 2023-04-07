@@ -18,7 +18,7 @@ const CLEAR_CELL = { ...EMPTY_CELL, c: -1, x: -1, y: -1, nx: -1, ny: -1 }
 const FIELD_SIZE = Dimensions.get('window').width / 20 * 19
 
 export default function Game() {
-    const [fieldGrid, setFieldGrid] = useState(4)
+    const { fieldGrid } = useSelector((s: any) => s.state)
 
     interface Cell {
         c: number,
@@ -339,11 +339,11 @@ export default function Game() {
                     {drawCells()}
                 </Field>
                 <View style={{ flexDirection: 'row' }}>
-                    <Button title='3' onPress={() => { setFieldGrid(3) }} />
+                    {/* <Button title='3' onPress={() => { setFieldGrid(3) }} />
                     <Button title='4' onPress={() => { setFieldGrid(4) }} />
                     <Button title='5' onPress={() => { setFieldGrid(5) }} />
                     <Button title='6' onPress={() => { setFieldGrid(6) }} />
-                    <Button title='8' onPress={() => { setFieldGrid(8) }} />
+                    <Button title='8' onPress={() => { setFieldGrid(8) }} /> */}
                     <Button title='random cell' onPress={setRandomCell} />
                     <Button title='clo 0' onPress={() => {
                         console.log('row 0')
@@ -398,6 +398,8 @@ const styles = StyleSheet.create({
         marginTop: 20
     },
     joystick: {
-        marginTop: 40
+        position:'absolute',
+        bottom:-100,
+        left:0
     }
 })
