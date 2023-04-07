@@ -12,13 +12,13 @@ interface Props {
         src: string
     }[]
     ,
-    index: number
+    start: number
     current: (index: number) => void
     src: (src: string) => void
 }
 
-export default function Slider({ data, index, current, src, style }: Props) {
-    const [el, setEl] = useState(index)
+export default function Slider({ data, start, current, src, style }: Props) {
+    const [el, setEl] = useState(start)
     function nextEl() {
         let index = el + 1
         const length = data.length

@@ -33,7 +33,7 @@ const stateSlice = createSlice({
         version: '1.0.0',
         toastAndroidMessage: null,
         bestScore: 0,
-        fieldGrid: 0
+        fieldGrid: 3
     },
     reducers: {
         setBestScore: (state, action) => {

@@ -35,7 +35,7 @@ export default function Home() {
                     <Image style={styles.fieldIcon} source={fieldIcons[imageSrc]}></Image>
                 </View>
 
-                <Slider style={styles.slider} data={sliderArr} index={fieldGrid}
+                <Slider style={styles.slider} data={sliderArr} start={0}
                     current={(res) => dispatch(setFieldGrid(res))}
                     src={setImageSrc}
                 />

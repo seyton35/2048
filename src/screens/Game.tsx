@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, StyleSheet, Dimensions, Button, Alert } from 'react-native'
+import { View, StyleSheet, Dimensions, Button, Alert, Share } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { setBestScore } from '../store/slices/stateReducer'
 
@@ -9,7 +9,6 @@ import Field from '../components/native/Field'
 import Cell from '../components/native/Cell'
 import ButtonJoystick from '../components/native/ButtonJoystick'
 import Score from '../components/native/Score'
-import Icon from '../components/native/IconButton'
 import IconButton from '../components/native/IconButton'
 import { useNavigation } from '@react-navigation/native'
 
@@ -311,6 +310,26 @@ export default function Game() {
         return cellDom
     }
 
+    const onShare = async () => {
+        try {
+            const result = await Share.share({ message: 'Сможешь ли ты собрать плитку в 2048? Докажи это своим друзьям https://apps.rustore.ru/app/com.2K48' }); //TODO: check url to my app in store
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    console.log('1', 1)
+                } else {
+                    // shared
+                    console.log('2', 2)
+                    Alert.alert('спасибо');
+                }
+            } else if (result.action === Share.dismissedAction) {
+                console.log('3', 3)
+                // dismissed
+            }
+        } catch (error: any) {
+            Alert.alert(error.message);
+        }
+    };
+
     return (
         <Container>
             <View style={styles.wrapper}>
@@ -326,7 +345,7 @@ export default function Game() {
                         <IconButton name={'home'}
                             onPress={() => nav.goBack()} />
                         <IconButton name={'share'}
-                            onPress={() => { console.log('not today') }} />
+                            onPress={onShare} />
                     </View>
                     <View style={styles.iconBox}>
                         <IconButton name={'undo'}
@@ -368,8 +387,8 @@ export default function Game() {
 const styles = StyleSheet.create({
     wrapper: {
         alignItems: 'center',
-        justifyContent:'center',
-        flex:.85
+        justifyContent: 'center',
+        flex: .85
     },
     titleBlock: {
         marginTop: 10,
@@ -398,8 +417,8 @@ const styles = StyleSheet.create({
         marginTop: 20
     },
     joystick: {
-        position:'absolute',
-        bottom:-100,
-        left:0
+        position: 'absolute',
+        bottom: -100,
+        left: 0
     }
 })
