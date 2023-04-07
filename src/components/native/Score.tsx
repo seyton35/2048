@@ -19,7 +19,7 @@ export default function Score({ style, title, children }: Props) {
 const styles = StyleSheet.create({
     scoreBox: {
         padding: 10,
-        backgroundColor: '#999',
+        backgroundColor: '#b9aea2',
         borderRadius: 5,
         alignItems:'center'
     },

@@ -1,5 +1,5 @@
-import { View, StyleSheet, Dimensions, Button } from 'react-native'
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
+import { View, StyleSheet, Dimensions, Button, Alert } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { setBestScore } from '../store/slices/stateReducer'
 
@@ -9,6 +9,9 @@ import Field from '../components/native/Field'
 import Cell from '../components/native/Cell'
 import ButtonJoystick from '../components/native/ButtonJoystick'
 import Score from '../components/native/Score'
+import Icon from '../components/native/IconButton'
+import IconButton from '../components/native/IconButton'
+import { useNavigation } from '@react-navigation/native'
 
 const EMPTY_CELL = { c: 0, x: 0, nx: 0, y: 0, ny: 0, shouldDouble: false, shouldClear: false }
 const CLEAR_CELL = { ...EMPTY_CELL, c: -1, x: -1, y: -1, nx: -1, ny: -1 }
@@ -32,19 +35,21 @@ export default function Game() {
     const { bestScore } = useSelector((s: any) => s.state)
 
     const dispatch = useDispatch()
+    const nav = useNavigation()
 
     useEffect(() => {
         fillCells()
     }, [])
 
     function fillCells() {
+        const emptyArr: Cell[][] = []
         for (let i = 0; i < fieldGrid; i++) {
-            cells.push([])
+            emptyArr.push([])
             for (let j = 0; j < fieldGrid; j++) {
-                cells[i].push({ ...EMPTY_CELL, x: j, y: i })
+                emptyArr[i].push({ ...EMPTY_CELL, x: j, y: i })
             }
         }
-        console.log('fiiled');
+        setCells(emptyArr)
     }
 
     function setRandomCell() {
@@ -270,6 +275,23 @@ export default function Game() {
         // setRandomCell();
     }
 
+    function restart() {
+        Alert.alert(
+            'Сбосить игру?',
+            'Вы действительно хотите сбросить игру??',
+            [
+                { text: 'отмена', onPress: () => null, },
+                {
+                    text: 'сброс',
+                    onPress: () => {
+                        setScore(0)
+                        fillCells()
+                    },
+                },
+            ]
+        )
+    }
+
     function drawCells() {
         const cellDom = []
         for (let i = 0; i < cells.length; i++) {
@@ -299,6 +321,20 @@ export default function Game() {
                         <Score style={styles.scoreBox} title='рекорд'>{bestScore}</Score>
                     </View>
                 </View>
+                <View style={styles.titleBlock}>
+                    <View style={styles.iconBox}>
+                        <IconButton name={'home'}
+                            onPress={() => nav.goBack()} />
+                        <IconButton name={'share'}
+                            onPress={() => { console.log('not today') }} />
+                    </View>
+                    <View style={styles.iconBox}>
+                        <IconButton name={'undo'}
+                            onPress={() => { console.log('not today') }} />
+                        <IconButton name={'sync'}
+                            onPress={restart} />
+                    </View>
+                </View>
                 <Field style={styles.field} size={FIELD_SIZE} grid={fieldGrid}>
                     {drawCells()}
                 </Field>
@@ -308,11 +344,6 @@ export default function Game() {
                     <Button title='5' onPress={() => { setFieldGrid(5) }} />
                     <Button title='6' onPress={() => { setFieldGrid(6) }} />
                     <Button title='8' onPress={() => { setFieldGrid(8) }} />
-                    <Button title='clear' onPress={() => {
-                        setCells([])
-                        console.log("clear");
-                    }} />
-                    <Button title='fill' onPress={() => { fillCells() }} />
                     <Button title='random cell' onPress={setRandomCell} />
                     <Button title='clo 0' onPress={() => {
                         console.log('row 0')
@@ -336,10 +367,12 @@ export default function Game() {
 
 const styles = StyleSheet.create({
     wrapper: {
-        padding: 10,
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent:'center',
+        flex:.85
     },
     titleBlock: {
+        marginTop: 10,
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%'
@@ -347,6 +380,11 @@ const styles = StyleSheet.create({
     titleTxt: {
         fontSize: 40,
         fontWeight: 'bold',
+    },
+    iconBox: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '25%'
     },
     scoreBlock: {
         flexDirection: 'row'
