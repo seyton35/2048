@@ -35,12 +35,12 @@ export default function Field({ children, size, grid, style }: Props) {
             margin: PADDING / 2,
         }
 
-        const cell = <View style={[styles.cellSlot, cellSlot]} ></View>
-        const cellRow = <View style={[styles.cellGrid]}>
+        const cell = (key: number) => <View key={key} style={[styles.cellSlot, cellSlot]} ></View>
+        const cellRow = (key: number) => <View key={key} style={[styles.cellGrid]}>
             {(() => {
                 const cellRow = []
                 for (let j = 0; j < grid; j++) {
-                    cellRow.push(cell)
+                    cellRow.push(cell(j))
                 }
                 return cellRow
             })()}
@@ -49,7 +49,7 @@ export default function Field({ children, size, grid, style }: Props) {
             {(() => {
                 const cellGrid = []
                 for (let j = 0; j < grid; j++) {
-                    cellGrid.push(cellRow)
+                    cellGrid.push(cellRow(j))
                 }
                 return cellGrid
             })()}

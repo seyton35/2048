@@ -8,7 +8,6 @@ import NavButton from "../components/reusable/NavButton";
 import Slider from '../components/custom/Slider';
 import { setFieldGrid } from '../store/slices/stateReducer';
 import { fieldIcons } from '../../assets/fieldIcons/fieldIcons';
-import { adds } from '../../assets/adds/adds';
 
 const sliderArr = [
     { string: 'маленький - 3х3', value: 3, src: '3x3' },
@@ -43,9 +42,6 @@ export default function Home() {
                 <NavButton style={styles.navBtn} title="НАЧАТЬ ИГРУ" route="game" />
 
             </View>
-            <View style={styles.addBox}>
-                <Image style={styles.addImage} source={adds.blank}></Image>
-            </View>
         </Container >
     )
 }
@@ -67,14 +63,4 @@ const styles = StyleSheet.create({
     navBtn: {
         marginTop: 20
     },
-    addBox: {
-
-        position: 'absolute',
-        alignSelf: 'center',
-        transform: [
-            { scaleX: .8, },
-        ],
-        bottom: 0
-    },
-    addImage: {}
 })

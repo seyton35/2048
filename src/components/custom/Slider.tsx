@@ -17,7 +17,7 @@ interface Props {
     src: (src: string) => void
 }
 
-export default function Slider({ data, start, current, src, style }: Props) {
+export default function Slider({ data, start=0, current, src, style }: Props) {
     const [el, setEl] = useState(start)
     function nextEl() {
         let index = el + 1
@@ -65,10 +65,9 @@ export default function Slider({ data, start, current, src, style }: Props) {
 const styles = StyleSheet.create({
     slider: {
         flexDirection: 'row',
-        alignSelf: 'center',
         justifyContent: 'space-between',
         alignItems: 'center',
-        width: '70%'
+        width: '80%'
     },
     arrowIconBtn: {
     },
