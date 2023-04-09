@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { View, StyleSheet, Dimensions, Button, Alert, Share } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
-import { setBestScore } from '../store/slices/stateReducer'
+import { setBestCell, setBestScore, setScore } from '../store/slices/stateReducer'
 
 import Txt from '../components/custom/Txt'
 import Container from '../components/reusable/Container'
@@ -16,22 +16,24 @@ const EMPTY_CELL = { c: 0, x: 0, nx: 0, y: 0, ny: 0, shouldDouble: false, should
 const CLEAR_CELL = { ...EMPTY_CELL, c: -1, x: -1, y: -1, nx: -1, ny: -1 }
 const FIELD_SIZE = Dimensions.get('window').width / 20 * 19
 
+interface Cell {
+    c: number,
+    x: number,
+    y: number,
+    nx: number,
+    ny: number,
+    shouldDouble: boolean,
+    shouldClear: boolean,
+}
+
 export default function Game() {
-    const { fieldGrid } = useSelector((s: any) => s.state)
-
-    interface Cell {
-        c: number,
-        x: number,
-        y: number,
-        nx: number,
-        ny: number,
-        shouldDouble: boolean,
-        shouldClear: boolean,
-    }
-
+    const {
+        fieldGrid,
+        score,
+        bestScore,
+        bestCell
+    } = useSelector((s: any) => s.state)
     const [cells, setCells] = useState<Cell[][]>([])
-    const [score, setScore] = useState(0)
-    const { bestScore } = useSelector((s: any) => s.state)
 
     const dispatch = useDispatch()
     const nav = useNavigation()
@@ -39,6 +41,12 @@ export default function Game() {
     useEffect(() => {
         fillCells()
     }, [])
+
+    useEffect(() => {
+        if (bestCell[fieldGrid] == 2048) {
+            console.log('congrad') // TODO: make congradulation
+        }
+    }, [bestCell[fieldGrid]])
 
     function fillCells() {
         const emptyArr: Cell[][] = []
@@ -145,8 +153,9 @@ export default function Game() {
                 for (let x = 0; x < row.length; x++) {
                     const cell = row[x];
                     if (cell.shouldDouble) {
-                        swipeScore += cell.c * 2
                         cell.c *= 2
+                        swipeScore += cell.c
+                        if (cell.c > bestCell[fieldGrid]) dispatch(setBestCell({ grid: fieldGrid, weight: cell.c }))
                         cell.x = cell.nx
                         cell.shouldDouble = false
                     } else if (cell.shouldClear) {
@@ -213,8 +222,9 @@ export default function Game() {
                 for (let x = 0; x < cells.length; x++) {
                     const cell = cells[y][x];
                     if (cell.shouldDouble) {
-                        swipeScore += cell.c * 2
                         cell.c *= 2
+                        if (cell.c > bestCell[fieldGrid]) dispatch(setBestCell({ grid: fieldGrid, weight: cell.c }))
+                        swipeScore += cell.c
                         cell.y = cell.ny
                         cell.shouldDouble = false
                     } else if (cell.shouldClear) {
@@ -251,9 +261,11 @@ export default function Game() {
         }
 
         function matchScore(swipeScore: number) {
-            setScore(score + swipeScore)
-            if (bestScore < swipeScore + score) {
-                dispatch(setBestScore(swipeScore + score))
+            const s = score[fieldGrid]
+            const b = bestScore[fieldGrid]
+            dispatch(setScore({ grid: fieldGrid, score: swipeScore + s }))
+            if (b < swipeScore + s) {
+                dispatch(setBestScore({ grid: fieldGrid, score: swipeScore + s }))
             }
         }
 
@@ -336,8 +348,8 @@ export default function Game() {
                 <View style={styles.titleBlock}>
                     <Txt style={styles.titleTxt}>2048</Txt>
                     <View style={styles.scoreBlock}>
-                        <Score title='счет'>{score}</Score>
-                        <Score style={styles.scoreBox} title='рекорд'>{bestScore}</Score>
+                        <Score title='счет'>{score[fieldGrid]}</Score>
+                        <Score style={styles.scoreBox} title='рекорд'>{bestScore[fieldGrid]}</Score>
                     </View>
                 </View>
                 <View style={styles.titleBlock}>
@@ -365,11 +377,9 @@ export default function Game() {
                     <Button title='8' onPress={() => { setFieldGrid(8) }} /> */}
                     <Button title='random cell' onPress={setRandomCell} />
                     <Button title='clo 0' onPress={() => {
-                        console.log('row 0')
-                        for (let i = 0; i < cells.length; i++) {
-                            const { c, y, ny } = cells[i][0];
-                            console.log('c:', c, ' y:', y, ' ny:', ny)
-                        }
+                        // console.log(cells)
+                        console.log(bestCell[fieldGrid])
+
                     }} />
                 </View>
                 <View style={{ flexDirection: 'row' }}>

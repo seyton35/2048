@@ -18,6 +18,9 @@ export const initialization = createAsyncThunk(
     async (_, { dispatch }) => {
         try {
             const bestScore = await getData('bestScore')
+            const score = await getData('score')
+            const bestCell = await getData('bestCell')
+            const allCells = await getData('allCells')
             if (bestScore !== null) {
                 dispatch(setBestScore(bestScore))
             }
@@ -32,21 +35,60 @@ const stateSlice = createSlice({
     initialState: {
         version: '1.0.0',
         toastAndroidMessage: null,
-        bestScore: 0,
-        fieldGrid: 3
+        fieldGrid: 3,
+        allCells: {
+            3: [],
+            4: [],
+            5: [],
+            6: [],
+            8: [],
+        },
+        bestScore: {
+            3: 0,
+            4: 0,
+            5: 0,
+            6: 0,
+            8: 0,
+        },
+        score: {
+            3: 0,
+            4: 0,
+            5: 0,
+            6: 0,
+            8: 0,
+        },
+        bestCell: {
+            3: 0,
+            4: 0,
+            5: 0,
+            6: 0,
+            8: 0,
+        },
     },
     reducers: {
-        setBestScore: (state, action) => {
-            state.bestScore = action.payload
-        },
         setFieldGrid: (state, action) => {
             state.fieldGrid = action.payload
+        },
+        setCellsArr: (state, action) => {
+            state.allCells[action.payload.grid] = action.payload.cells
+        },
+        setBestScore: (state, action) => {
+            state.bestScore[action.payload.grid] = action.payload.score
+        },
+        setScore: (state, action) => {
+            state.score[action.payload.grid] = action.payload.score
+        },
+        setBestCell: (state, action) => {
+            state.bestCell[action.payload.grid] = action.payload.weight
         },
         setToastAndroidMessage: (state, action) => {
             state.toastAndroidMessage = action.payload
         },
-        storeBestScore: (state, action) => {
+        storeProgress: (state, action) => {
             storeData('bestScore', state.bestScore)
+            storeData('score', state.score)
+            storeData('bestCell', state.bestCell)
+            storeData('allCells', state.allCells)
         }
     },
     extraReducers: builder => {
@@ -64,7 +106,11 @@ const stateSlice = createSlice({
 })
 
 export const {
+    setCellsArr,
     setBestScore,
+    setScore,
+    setBestCell,
+    storeProgress,
     setFieldGrid,
     setToastAndroidMessage,
 } = stateSlice.actions
